@@ -1,4 +1,5 @@
 def count_letters(string):
+    #string = string.lower()
     letter_count = {}
     for char in string:
         if char not in letter_count:
