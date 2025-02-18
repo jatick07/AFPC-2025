@@ -25,8 +25,12 @@ PrintEvenNums_cases = [
 ]
 
 # Run the file and test every case in the test cases
-def test_file(file, cases):
+def test_file(folder, file, cases):
     checklist = []
+    full_file = folder + file
+    
+    if file[-3:] == 'cpp':
+        os.mkdir(f"test-results/{file[:-4]}")
     
     for i, edge_case in enumerate(cases, 1):
         expected_output = edge_case[-1]
@@ -35,19 +39,30 @@ def test_file(file, cases):
             case = edge_case[0]
         elif len(edge_case) == 3:
             case = f"{edge_case[0]}\n{edge_case[1]}"
-            
-        process = subprocess.run(["python", file], input=case, text=True, capture_output=True)
-        output = process.stdout.strip()
         
-        if output == expected_output:
-            checklist.append("Pass")
-        else:
-            checklist.append("Fail")
+        if file[-2:] == 'py':
+            process = subprocess.run(["python", full_file], input=case, text=True, capture_output=True)
+            output = process.stdout.strip()
+        
+            if output == expected_output:
+                checklist.append("Pass")
+            else:
+                checklist.append("Fail")
+        elif file[-3:] == 'cpp':
+            subprocess.run(["g++", "-o", full_file[:-4], full_file])
+            process = subprocess.run([full_file[:-4] + ".exe"], input=case, text=True, capture_output=True)
+            
+            stdout = open(f"test-results/{file[:-4]}/stdout-{i}.txt", "w")
+            stdout.write(process.stdout.strip())
+            stdout.close()
     
-    return checklist
+    if file[-2:] == 'py':
+        return checklist
+    elif file[-3:] == 'cpp':
+        return "C++, I ain't remaking ALL of it, check the txt"
     
 def folder_iter(folder):
-    file_list = os.listdir(folder)
+    file_list = [file for file in os.listdir(folder) if file[-2:] == 'py' or file[-3:] == 'cpp']
     problem_type = folder.split("/")[-2]
     case_list = []
     
@@ -58,23 +73,27 @@ def folder_iter(folder):
     
     for file in file_list:
         print(f"\nTesting file '{file}': \n")
-        file_path = folder + file
-        output = test_file(file_path, case_list)
-        output_file = open(file + ".txt", "w")
+        output = test_file(folder, file, case_list)
+        if type(output) is str:
+            print(output)
+        else:
+            output_file = open(f"test-results/{file}.txt", "w")
         
-        for index, result in enumerate(output):
-            fresult = f"Test case {index + 1}: {result}"
-            print(fresult)
-            output_file.write(fresult + "\n")
-        output_file.close()
+            for index, result in enumerate(output):
+                fresult = f"Test case {index + 1}: {result}"
+                print(fresult)
+                output_file.write(fresult + "\n")
+            output_file.close()
+        
+        
     
 # Input sequence
 problem_type = int(input("Problem types:\n    1 - Count letters in a string\n    2 - Print even numbers from a range of integers\nEnter the problem type: "))
 
 # Choose problem type and test files based on the type
 if problem_type == 1:
-    folder = "./test-files/CountLetters/"
+    folder = "test-files/CountLetters/"
     folder_iter(folder)
 elif problem_type == 2:
-    folder = "./test-files/PrintEvenNums/"
+    folder = "test-files/PrintEvenNums/"
     folder_iter(folder)
