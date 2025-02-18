@@ -59,4 +59,8 @@ Lastly, it will test every file in that folder and output results in the command
   Test case 7: Pass
   Test case 8: Pass
   Test case 9: Fail
+
+  Testing file 'test-cl.py':
+
+  C++, I ain't remaking ALL of it, check the txt
 ```
