@@ -1,6 +1,5 @@
 def get_even(start, end):
-    num_list = [num for num in range(int(start), int(end)+1)]
-    return [num for num in num_list if num%2 == 0]
+    return [num for num in range(int(start), int(end)+1) if num%2 == 0]
 
 
 x = input()
